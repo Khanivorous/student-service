@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Controller
 @RequestMapping(path = "/students")
 public class MainController {
@@ -27,5 +29,10 @@ public class MainController {
     @GetMapping(path="/all")
     public @ResponseBody Iterable<Student> getAllUsers() {
         return studentRepository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public @ResponseBody Optional<Student> getUserById(@PathVariable Integer id) {
+        return studentRepository.findById(id);
     }
 }
