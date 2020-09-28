@@ -8,8 +8,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/students")
 public class MainController {
 
+    private final StudentRepository studentRepository;
+
     @Autowired
-    private StudentRepository studentRepository;
+    public MainController(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     @PostMapping(path = "/add")
     public @ResponseBody String addNewStudent(@RequestParam String name, @RequestParam Integer age) {
