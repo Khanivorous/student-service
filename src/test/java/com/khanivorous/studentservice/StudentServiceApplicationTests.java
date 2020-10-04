@@ -3,29 +3,31 @@ package com.khanivorous.studentservice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+
+@WebMvcTest(MainController.class)
 class StudentServiceApplicationTests {
 
     @Autowired
-    MainController mainController;
+    private MockMvc mockMvc;
 
     @MockBean
     private StudentRepository studentRepository;
 
     @BeforeEach
     public void setUp() {
-
-        mainController = new MainController(studentRepository);
 
         Student student1 = new Student();
         student1.setId(1);
@@ -40,17 +42,30 @@ class StudentServiceApplicationTests {
     }
 
     @Test
-    public void testGetAllUsers() {
-        assertThat(mainController.getAllUsers().iterator().next().getName()).isEqualTo("Ben");
-        assertThat(mainController.getAllUsers().iterator().next().getAge()).isEqualTo(28);
-        assertThat(mainController.getAllUsers().iterator().next().getId()).isEqualTo(1);
+    public void testGetAllUsers() throws Exception {
+
+        mockMvc.perform(get("/students/all"))
+                .andExpect(jsonPath("$[0].name", is("Ben")))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].age", is(28)));
     }
 
     @Test
-    public void testGetUserById() {
-        assertThat(mainController.getUserById(1).get().getName()).isEqualTo("Ben");
-        assertTrue(mainController.getUserById(1).isPresent());
-        assertTrue(mainController.getUserById(2).isEmpty());
+    public void testGetUserById() throws Exception {
+        mockMvc.perform(get("/students/1"))
+                .andExpect(jsonPath("$.name", is("Ben")))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.age", is(28)));
+    }
+
+    @Test
+    void testPostRequest() throws Exception {
+
+        mockMvc.perform(post("/students/add")
+                .param("name","Andy")
+                .param("age","22"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string("saved"));
     }
 
 }
