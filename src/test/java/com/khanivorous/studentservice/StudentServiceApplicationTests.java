@@ -12,8 +12,7 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -59,7 +58,7 @@ class StudentServiceApplicationTests {
     }
 
     @Test
-    void testPostRequest() throws Exception {
+    public void testAddNewStudent() throws Exception {
 
         mockMvc.perform(post("/students/add")
                 .param("name","Andy")
@@ -68,4 +67,10 @@ class StudentServiceApplicationTests {
                 .andExpect(content().string("saved"));
     }
 
+    @Test
+    public void testDeleteStudent() throws Exception {
+        mockMvc.perform(delete("/students/1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string("deleted"));
+    }
 }
