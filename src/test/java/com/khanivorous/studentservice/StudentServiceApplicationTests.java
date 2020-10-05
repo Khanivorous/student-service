@@ -1,5 +1,8 @@
 package com.khanivorous.studentservice;
 
+import com.khanivorous.studentservice.student.Student;
+import com.khanivorous.studentservice.student.StudentController;
+import com.khanivorous.studentservice.student.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@WebMvcTest(MainController.class)
+@WebMvcTest(StudentController.class)
 class StudentServiceApplicationTests {
 
     @Autowired
