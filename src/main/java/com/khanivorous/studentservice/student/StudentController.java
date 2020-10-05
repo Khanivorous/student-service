@@ -1,5 +1,7 @@
-package com.khanivorous.studentservice;
+package com.khanivorous.studentservice.student;
 
+import com.khanivorous.studentservice.student.Student;
+import com.khanivorous.studentservice.student.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -8,12 +10,12 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping(path = "/students")
-public class MainController {
+public class StudentController {
 
     private final StudentRepository studentRepository;
 
     @Autowired
-    public MainController(StudentRepository studentRepository) {
+    public StudentController(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
 
