@@ -35,4 +35,10 @@ public class MainController {
     public @ResponseBody Optional<Student> getUserById(@PathVariable Integer id) {
         return studentRepository.findById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public @ResponseBody String deleteStudent(@PathVariable Integer id) {
+        studentRepository.deleteById(id);
+        return "deleted";
+    }
 }
