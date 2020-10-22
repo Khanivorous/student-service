@@ -1,11 +1,9 @@
-# This workflow will build a Java project with Maven
+# This workflow builds branches and runs tests when PRs are raised. No docker image is built here
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven
+name: Branch PR workflow
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -56,13 +54,3 @@ jobs:
         java-version: 15
     - name: Build with Maven
       run: mvn -B package --file pom.xml -DskipTests=true
-
-    - name: Build and Push Docker Image
-      uses: mr-smithers-excellent/docker-build-push@v4
-      with:
-        image: khanivorous/student-service
-        tag: latest
-        registry: docker.io
-        dockerfile: Dockerfile
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
