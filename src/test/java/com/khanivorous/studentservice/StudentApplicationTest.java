@@ -14,8 +14,11 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StudentApplicationTest {
@@ -45,8 +48,8 @@ public class StudentApplicationTest {
     }
 
     @Test
-    public void testThing() throws Exception {
-        final String baseUrl ="http://localhost:" + port + "/students/all";
+    public void testGetAllUsers() throws Exception {
+        final String baseUrl = "http://localhost:" + port + "/students/all";
         URI uri = new URI(baseUrl);
         ResponseEntity<Student[]> responseEntity = restTemplate.getForEntity(String.valueOf(uri), Student[].class);
         assertEquals("Ben", Arrays.stream(responseEntity.getBody()).findFirst().get().getName());
@@ -54,4 +57,34 @@ public class StudentApplicationTest {
         assertEquals(28, Arrays.stream(responseEntity.getBody()).findFirst().get().getAge().intValue());
         assertEquals(200, responseEntity.getStatusCodeValue());
     }
+
+    @Test
+    public void testGetUserById() throws Exception {
+        final String baseUrl = "http://localhost:" + port + "/students/1";
+        URI uri = new URI(baseUrl);
+        ResponseEntity<Student> responseEntity = restTemplate.getForEntity(String.valueOf(uri), Student.class);
+        assertEquals("Ben", responseEntity.getBody().getName());
+        assertEquals(1, responseEntity.getBody().getId().intValue());
+        assertEquals(28, responseEntity.getBody().getAge().intValue());
+        assertEquals(200, responseEntity.getStatusCodeValue());
+    }
+
+//    @Test
+//    public void testAddNewStudent() throws Exception {
+//        final String baseUrl = "http://localhost:" + port + "/students/add";
+//        URI uri = new URI(baseUrl);
+//        ResponseEntity<String> responseEntity = restTemplate.postForEntity()
+//        mockMvc.perform(post("/students/add")
+//                .param("name", "Andy")
+//                .param("age", "22"))
+//                .andExpect(status().is2xxSuccessful())
+//                .andExpect(content().string("saved"));
+//    }
+//
+//    @Test
+//    public void testDeleteStudent() throws Exception {
+//        mockMvc.perform(delete("/students/1"))
+//                .andExpect(status().is2xxSuccessful())
+//                .andExpect(content().string("deleted"));
+//    }
 }

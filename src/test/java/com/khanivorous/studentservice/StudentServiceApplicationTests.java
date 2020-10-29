@@ -64,8 +64,8 @@ class StudentServiceApplicationTests {
     public void testAddNewStudent() throws Exception {
 
         mockMvc.perform(post("/students/add")
-                .param("name","Andy")
-                .param("age","22"))
+                .param("name", "Andy")
+                .param("age", "22"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string("saved"));
     }
