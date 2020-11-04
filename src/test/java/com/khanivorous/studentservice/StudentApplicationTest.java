@@ -10,15 +10,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StudentApplicationTest {
@@ -32,23 +32,23 @@ public class StudentApplicationTest {
     @MockBean
     private StudentRepository studentRepository;
 
+    private Student student1;
+
     @BeforeEach
     public void setUp() {
 
-        Student student1 = new Student();
+        student1 = new Student();
         student1.setId(1);
         student1.setName("Ben");
         student1.setAge(28);
-
-        ArrayList<Student> studentList = new ArrayList<>();
-        studentList.add(student1);
-
-        when(studentRepository.findAll()).thenReturn(studentList);
-        when(studentRepository.findById(1)).thenReturn(Optional.of(student1));
     }
 
     @Test
     public void testGetAllUsers() throws Exception {
+        ArrayList<Student> studentList = new ArrayList<>();
+        studentList.add(student1);
+        when(studentRepository.findAll()).thenReturn(studentList);
+
         final String baseUrl = "http://localhost:" + port + "/students/all";
         URI uri = new URI(baseUrl);
         ResponseEntity<Student[]> responseEntity = restTemplate.getForEntity(String.valueOf(uri), Student[].class);
@@ -60,6 +60,9 @@ public class StudentApplicationTest {
 
     @Test
     public void testGetUserById() throws Exception {
+
+        when(studentRepository.findById(1)).thenReturn(Optional.of(student1));
+
         final String baseUrl = "http://localhost:" + port + "/students/1";
         URI uri = new URI(baseUrl);
         ResponseEntity<Student> responseEntity = restTemplate.getForEntity(String.valueOf(uri), Student.class);
@@ -73,7 +76,8 @@ public class StudentApplicationTest {
 //    public void testAddNewStudent() throws Exception {
 //        final String baseUrl = "http://localhost:" + port + "/students/add";
 //        URI uri = new URI(baseUrl);
-//        ResponseEntity<String> responseEntity = restTemplate.postForEntity()
+//        HttpEntity<String> request = new HttpEntity<>(new String());
+//        ResponseEntity<String> responseEntity = restTemplate.postForEntity(String.valueOf(uri),request,String.class);
 //        mockMvc.perform(post("/students/add")
 //                .param("name", "Andy")
 //                .param("age", "22"))
