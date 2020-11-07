@@ -4,6 +4,7 @@ import com.khanivorous.studentservice.student.Student;
 import com.khanivorous.studentservice.student.StudentController;
 import com.khanivorous.studentservice.student.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@Tag("ControllerTest")
 @WebMvcTest(StudentController.class)
 class StudentServiceApplicationTests {
 
