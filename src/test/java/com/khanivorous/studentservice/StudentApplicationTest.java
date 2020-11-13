@@ -83,8 +83,4 @@ public class StudentApplicationTest {
                 .body(is("deleted"));
     }
 
-    @Test
-    public void doThing() {
-
-    }
 }
