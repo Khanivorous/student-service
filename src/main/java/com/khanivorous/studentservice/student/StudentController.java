@@ -18,7 +18,8 @@ public class StudentController {
     }
 
     @PostMapping(path = "/add")
-    public @ResponseBody String addNewStudent(@RequestParam String name, @RequestParam Integer age) {
+    public @ResponseBody
+    String addNewStudent(@RequestParam String name, @RequestParam Integer age) {
         Student s = new Student();
         s.setName(name);
         s.setAge(age);
@@ -26,18 +27,21 @@ public class StudentController {
         return "saved";
     }
 
-    @GetMapping(path="/all")
-    public @ResponseBody Iterable<Student> getAllUsers() {
+    @GetMapping(path = "/all")
+    public @ResponseBody
+    Iterable<Student> getAllUsers() {
         return studentRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public @ResponseBody Optional<Student> getUserById(@PathVariable Integer id) {
+    public @ResponseBody
+    Optional<Student> getUserById(@PathVariable Integer id) {
         return studentRepository.findById(id);
     }
 
     @DeleteMapping("/{id}")
-    public @ResponseBody String deleteStudent(@PathVariable Integer id) {
+    public @ResponseBody
+    String deleteStudent(@PathVariable Integer id) {
         studentRepository.deleteById(id);
         return "deleted";
     }
