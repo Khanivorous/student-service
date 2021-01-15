@@ -21,5 +21,7 @@ services:
       - students
     ports:
       - 8081:8081
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://students:3306/db_students
 volumes:
   mysql-data:
