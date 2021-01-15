@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+
+  students:
+    image: mysql:latest
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_USER=springy
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=db_students
+    ports:
+      - 3306:3306
+
+  service:
+    image: khanivorous/student-service
+    restart: on-failure
+    depends_on:
+      - students
+    ports:
+      - 8081:8081
+volumes:
+  mysql-data:
