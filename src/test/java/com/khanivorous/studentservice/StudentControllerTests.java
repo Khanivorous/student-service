@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Tag("ControllerTest")
 @WebMvcTest(StudentController.class)
-class StudentServiceApplicationTests {
+class StudentControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
