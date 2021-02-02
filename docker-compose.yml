@@ -15,7 +15,9 @@ services:
       - 3306:3306
 
   service:
-    image: khanivorous/student-service
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: on-failure
     depends_on:
       - students
