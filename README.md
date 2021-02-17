@@ -1,6 +1,8 @@
 # Student Service
 
-This is a rest api that saves and returns student data from a mysql db
+This is a simple demo rest api project that saves and returns student data from a mysql db.
+
+This is to demo simple tests against a simple springboot application.
 
 The docker-compose file can be used to create the services locally to run and test out.
 
