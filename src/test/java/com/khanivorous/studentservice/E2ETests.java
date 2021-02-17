@@ -10,7 +10,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-@Tag("E2ETest")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class E2ETests {
 
