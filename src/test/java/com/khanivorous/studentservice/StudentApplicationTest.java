@@ -4,7 +4,6 @@ import com.khanivorous.studentservice.student.Student;
 import com.khanivorous.studentservice.student.StudentRepository;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
