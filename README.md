@@ -4,7 +4,7 @@ This is a simple demo rest api project that saves and returns student data from 
 
 This is to demo simple tests against a simple springboot application.
 
-The docker-compose file can be used to create the services locally to run and test out.
+The docker-compose file can be used to create the services locally to run and try out.
 
 ## Workflows on github
 
@@ -22,17 +22,17 @@ There are 3 test classes in this repository
 
 ### StudentControllerTests
 
-These tests simply test the rest controller layer, so the whole application context is not launched. 
-These tests are a good waz of isolating controllers to check if they are working. As you will notice in the test class, mocks are required.
+These tests simply test the rest controller layer, so instead of the whole application context being launched, it only launches the layer you wish to test. 
+These tests are a good way of isolating controllers to check if they are working. As you will notice in the test class, mocks are required. Mocks will generally be required when testing isolated layers of the application as there will inevitably be other dependencies.
 
 ### StudentApplicationTest
 
-These tests launch the whole application context, however this this uses mocks in order to test functionality without having to rely on real data.
+These tests launch the whole application context, however this this uses mocks for the repository reponse, in order to test functionality without having to rely on real data from the database.
 
 ### E2ETests
 
-These tests check the end-to-end behaviour so no mocks are used in this test class. You will notice that the application.properties class unter ttest resources
-uses a h2 in-memory database. this allows for easy testing without having to externally spin up a database to test the e2e functionality.
+These tests check the end-to-end behaviour so no mocks are used in this test class. You will notice that the application.properties class under test resources
+uses a h2 in-memory database. This allows for easy testing without having to externally spin up a database to test the e2e functionality.
 
 
 
