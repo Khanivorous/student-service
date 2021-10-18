@@ -15,18 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 15
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
           java-version: 15
       - name: Run tests
         run: mvn clean test jacoco:report
       - name: Upload coverage
         if: success()
-        run: |
-          curl -s https://codecov.io/bash | bash
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        shell: bash
+        uses: codecov/codecov-action@v2.1.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
 
@@ -36,14 +35,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 15
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
           java-version: 15
       - name: Build with Maven
         run: mvn -B package --file pom.xml -DskipTests=true
 
       - name: Build and Push Docker Image
-        uses: mr-smithers-excellent/docker-build-push@v4
+        uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: khanivorous/student-service
           tag: latest
