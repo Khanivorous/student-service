@@ -2,25 +2,30 @@ package com.khanivorous.studentservice;
 
 import com.khanivorous.studentservice.student.Student;
 import com.khanivorous.studentservice.student.StudentRepository;
-import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 public class StudentApplicationTest {
 
-    @LocalServerPort
-    private int port;
+    @Autowired
+    private MockMvc mockMvc;
 
     @MockBean
     private StudentRepository studentRepository;
@@ -39,46 +44,42 @@ public class StudentApplicationTest {
         when(studentRepository.findAll()).thenReturn(studentList);
         when(studentRepository.findById(1)).thenReturn(Optional.of(student1));
 
-        RestAssured.basePath = "/students";
-        RestAssured.port = port;
     }
 
     @Test
-    public void testGetAllUsers() {
-        given().get("/all")
-                .then()
-                .assertThat()
-                .body("[0].name", is("Ben"))
-                .body("[0].id", is(1))
-                .body("[0].age", is(28));
+    public void testGetAllUsers() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/students/all"))
+                .andExpect(jsonPath("$[0].name", is("Ben")))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].age", is(28)));
+
     }
 
     @Test
-    public void testGetUserById() {
-        given().get("/1")
-                .then()
-                .assertThat()
-                .body("name", is("Ben"))
-                .body("id", is(1))
-                .body("age", is(28));
+    public void testGetUserById() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/students/1"))
+                .andExpect(jsonPath("$.name", is("Ben")))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.age", is(28)));
+
     }
 
     @Test
-    public void testAddNewStudent() {
-        given().param("name", "Andy")
-                .param("age", "22")
-                .post("/add")
-                .then()
-                .assertThat()
-                .body(is("saved"));
+    public void testAddNewStudent() throws Exception {
+        mockMvc.perform(post("/students/add")
+                        .param("name", "Andy")
+                        .param("age", "22"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string("saved"));
     }
 
     @Test
-    public void testDeleteStudent() {
-        given().delete("/1")
-                .then()
-                .assertThat()
-                .body(is("deleted"));
+    public void testDeleteStudent() throws Exception {
+        mockMvc.perform(delete("/students/1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string("deleted"));
     }
 
 }

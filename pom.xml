@@ -59,21 +59,24 @@
             <version>${io-rest-assured.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--Added required depeendencies due to : https://github.com/rest-assured/rest-assured/issues/1168 -->
+        <!--Added required dependencies due to : https://github.com/rest-assured/rest-assured/issues/1168 -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
             <version>${io-rest-assured.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path</artifactId>
             <version>${io-rest-assured.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>xml-path</artifactId>
             <version>${io-rest-assured.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>
