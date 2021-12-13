@@ -46,6 +46,7 @@ class StudentControllerTests {
     public void testGetAllUsers() throws Exception {
 
         mockMvc.perform(get("/students/all"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name", is("Ben")))
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[0].age", is(28)));
@@ -54,6 +55,7 @@ class StudentControllerTests {
     @Test
     public void testGetUserById() throws Exception {
         mockMvc.perform(get("/students/1"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Ben")))
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.age", is(28)));
@@ -65,14 +67,14 @@ class StudentControllerTests {
         mockMvc.perform(post("/students/add")
                 .param("name", "Andy")
                 .param("age", "22"))
-                .andExpect(status().is2xxSuccessful())
+                .andExpect(status().isCreated())
                 .andExpect(content().string("saved"));
     }
 
     @Test
     public void testDeleteStudent() throws Exception {
         mockMvc.perform(delete("/students/1"))
-                .andExpect(status().is2xxSuccessful())
+                .andExpect(status().isAccepted())
                 .andExpect(content().string("deleted"));
     }
 }
