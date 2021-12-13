@@ -44,7 +44,7 @@ public class StudentController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public @ResponseBody
     String deleteStudent(@PathVariable Integer id) {
         studentRepository.deleteById(id);

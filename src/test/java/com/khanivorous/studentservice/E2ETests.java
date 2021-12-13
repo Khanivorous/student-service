@@ -29,23 +29,27 @@ public class E2ETests {
                 .post("/add")
                 .then()
                 .assertThat()
-                .body(is("saved"));
+                .body(is("saved"))
+                .statusCode(is(201));
 
         given().get("/1")
                 .then()
                 .assertThat()
                 .body("name", is("Andy"))
                 .body("id", is(1))
-                .body("age", is(22));
+                .body("age", is(22))
+                .statusCode(is(200));
 
         given().delete("/1")
                 .then()
                 .assertThat()
-                .body(is("deleted"));
+                .body(is("deleted"))
+                .statusCode(is(202));
 
         given().get("/all")
                 .then()
                 .assertThat()
-                .body("isEmpty()", is(true));
+                .body("isEmpty()", is(true))
+                .statusCode(is(200));
     }
 }

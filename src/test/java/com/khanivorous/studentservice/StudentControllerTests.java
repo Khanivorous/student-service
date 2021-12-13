@@ -74,7 +74,7 @@ class StudentControllerTests {
     @Test
     public void testDeleteStudent() throws Exception {
         mockMvc.perform(delete("/students/1"))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isAccepted())
                 .andExpect(content().string("deleted"));
     }
 }
