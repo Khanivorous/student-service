@@ -1,5 +1,7 @@
-package com.khanivorous.studentservice.student;
+package com.khanivorous.studentservice.student.controllers;
 
+import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.services.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;

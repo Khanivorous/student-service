@@ -1,7 +1,7 @@
-package com.khanivorous.studentservice;
+package com.khanivorous.studentservice.applicationtests;
 
-import com.khanivorous.studentservice.student.Student;
-import com.khanivorous.studentservice.student.StudentRepository;
+import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.services.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

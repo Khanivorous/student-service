@@ -1,4 +1,4 @@
-package com.khanivorous.studentservice.student;
+package com.khanivorous.studentservice.student.models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
