@@ -1,7 +1,8 @@
 package com.khanivorous.studentservice.applicationtests;
 
+import com.khanivorous.studentservice.student.NoSuchIdException;
 import com.khanivorous.studentservice.student.models.Student;
-import com.khanivorous.studentservice.student.services.StudentRepository;
+import com.khanivorous.studentservice.student.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -69,19 +70,36 @@ public class StudentApplicationTest {
     }
 
     @Test
+    public void testUnknownIdReturnsError() throws Exception {
+        mockMvc.perform(get("/students/2"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Could not find student with id 2"));
+    }
+
+    @Test
     public void testAddNewStudent() throws Exception {
         mockMvc.perform(post("/students/add")
                         .param("name", "Andy")
                         .param("age", "22"))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("saved"));
+                .andExpect(content().string("{\"id\":null,\"name\":\"Andy\",\"age\":22}"));
     }
 
     @Test
     public void testDeleteStudent() throws Exception {
+        when(studentRepository.existsById(1)).thenReturn(true);
         mockMvc.perform(delete("/students/1"))
                 .andExpect(status().isAccepted())
-                .andExpect(content().string("deleted"));
+                .andExpect(content().string("student with id 1 deleted"));
+    }
+
+    @Test
+    public void testDeleteNonExistentStudentThrowsError() throws Exception {
+        mockMvc.perform(delete("/students/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Could not find student with id 1"))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoSuchIdException));
+        verify(studentRepository, never()).delete(any());
     }
 
 }

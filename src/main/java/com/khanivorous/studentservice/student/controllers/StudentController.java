@@ -1,55 +1,56 @@
 package com.khanivorous.studentservice.student.controllers;
 
+import com.khanivorous.studentservice.student.NoSuchIdException;
 import com.khanivorous.studentservice.student.models.Student;
-import com.khanivorous.studentservice.student.services.StudentRepository;
+import com.khanivorous.studentservice.student.repository.StudentRepository;
+import com.khanivorous.studentservice.student.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
-@Controller
+@RestController
 @RequestMapping(path = "/students")
 public class StudentController {
 
-    private final StudentRepository studentRepository;
+    private final StudentService studentService;
 
     @Autowired
-    public StudentController(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService ;
     }
 
     @PostMapping(path = "/add")
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    String addNewStudent(@RequestParam String name, @RequestParam Integer age) {
-        Student s = new Student();
-        s.setName(name);
-        s.setAge(age);
-        studentRepository.save(s);
-        return "saved";
+    Student addNewStudent(@RequestParam String name, @RequestParam Integer age) {
+       return studentService.addNewStudent(name,age);
     }
 
-    @GetMapping(path = "/all")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    Student getUserById(@PathVariable Integer id) {
+        return studentService.getStudentById(id);
+    }
+
+    @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Iterable<Student> getAllUsers() {
-        return studentRepository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody
-    Optional<Student> getUserById(@PathVariable Integer id) {
-        return studentRepository.findById(id);
+        return studentService.getAllStudents();
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public @ResponseBody
     String deleteStudent(@PathVariable Integer id) {
-        studentRepository.deleteById(id);
-        return "deleted";
+        return studentService.deleteStudentById(id);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(NoSuchIdException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String studentNotFoundHandler(NoSuchIdException ex) {
+        return ex.getMessage();
     }
 }
