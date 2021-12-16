@@ -1,7 +1,9 @@
-package com.khanivorous.studentservice.student.services;
+package com.khanivorous.studentservice.student.repository;
 
 import com.khanivorous.studentservice.student.models.Student;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface StudentRepository extends CrudRepository<Student, Integer> {
 }

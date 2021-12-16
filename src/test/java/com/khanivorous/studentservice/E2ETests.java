@@ -29,7 +29,7 @@ public class E2ETests {
                 .post("/add")
                 .then()
                 .assertThat()
-                .body(is("saved"))
+                .body(is("{\"id\":1,\"name\":\"Andy\",\"age\":22}"))
                 .statusCode(is(201));
 
         given().get("/1")
@@ -43,7 +43,7 @@ public class E2ETests {
         given().delete("/1")
                 .then()
                 .assertThat()
-                .body(is("deleted"))
+                .body(is("student with id 1 deleted"))
                 .statusCode(is(202));
 
         given().get("/all")
