@@ -69,7 +69,6 @@ public class StudentControllerTestsWithServiceMock {
 
     @Test
     public void testUnknownIdReturnsError() throws Exception {
-
         when(studentService.getStudentById(2)).thenThrow(new NoSuchIdException(2));
         mockMvc.perform(get("/students/2"))
                 .andExpect(status().isNotFound())
