@@ -7,7 +7,7 @@ import com.khanivorous.studentservice.student.services.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -21,14 +21,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
 
-    @Mock
+    @Spy
     private StudentRepository studentRepository;
 
-    StudentService studentService;
+    StudentService serviceUnderTest;
 
     @BeforeEach
     public void setUp() {
-        this.studentService = new StudentService(studentRepository);
+        this.serviceUnderTest = new StudentService(studentRepository);
     }
 
     @Test
@@ -39,16 +39,14 @@ public class StudentServiceTest {
         student1.setAge(28);
         when(studentRepository.findById(1)).thenReturn(Optional.of(student1));
 
-        Student response = studentService.getStudentById(1);
+        Student response = serviceUnderTest.getStudentById(1);
         assertEquals(student1, response);
     }
 
     @Test
-    public void testGetUnknownIdReturnsError()  {
+    public void testGetUnknownIdReturnsError() {
 
-        Exception exception = assertThrows(NoSuchIdException.class, () -> {
-            studentService.getStudentById(1);
-        });
+        Exception exception = assertThrows(NoSuchIdException.class, () -> serviceUnderTest.getStudentById(1));
 
         String expectedMessage = "Could not find student with id 1";
         String actualMessage = exception.getMessage();
@@ -67,33 +65,25 @@ public class StudentServiceTest {
 
         when(studentRepository.findAll()).thenReturn(studentList);
 
-        Iterable<Student> response = studentService.getAllStudents();
-        assertEquals(studentList,response);
+        Iterable<Student> response = serviceUnderTest.getAllStudents();
+        assertEquals(studentList, response);
     }
 
     @Test
     public void testAddNewStudent() {
+        Student actualStudent = serviceUnderTest.addNewStudent("john", 23);
 
-        Student newStudent = new Student();
-        newStudent.setName("john");
-        newStudent.setAge(23);
-
-        when(studentRepository.save(any())).thenReturn(newStudent);
-
-        Student actualStudent = studentService.addNewStudent("john",23);
-
-        assertEquals(newStudent.getName(),actualStudent.getName());
-        assertEquals(newStudent.getAge(),actualStudent.getAge());
-        assertEquals(newStudent.getId(), actualStudent.getId());
-
+        assertEquals("john", actualStudent.getName());
+        assertEquals(23, actualStudent.getAge());
     }
 
 
     @Test
     public void testDeleteById() {
-       when(studentRepository.existsById(1)).thenReturn(true);
-        String response = studentService.deleteStudentById(1);
+        when(studentRepository.existsById(1)).thenReturn(true);
+        String response = serviceUnderTest.deleteStudentById(1);
         assertEquals("student with id 1 deleted", response);
+        verify(studentRepository, times(1)).deleteById(1);
     }
 
     @Test
@@ -101,9 +91,7 @@ public class StudentServiceTest {
 
         when(studentRepository.existsById(1)).thenReturn(false);
 
-        Exception exception = assertThrows(NoSuchIdException.class, () -> {
-            studentService.deleteStudentById(1);
-        });
+        Exception exception = assertThrows(NoSuchIdException.class, () -> serviceUnderTest.deleteStudentById(1));
 
         String expectedMessage = "Could not find student with id 1";
         String actualMessage = exception.getMessage();
