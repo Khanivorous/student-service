@@ -88,15 +88,11 @@ public class StudentServiceTest {
 
     @Test
     public void testDeleteByNonExistentIdThrowsError() {
-
         when(studentRepository.existsById(1)).thenReturn(false);
-
         Exception exception = assertThrows(NoSuchIdException.class, () -> serviceUnderTest.deleteStudentById(1));
-
         String expectedMessage = "Could not find student with id 1";
         String actualMessage = exception.getMessage();
         assertEquals(expectedMessage, actualMessage);
-
         verify(studentRepository, never()).delete(any());
     }
 
