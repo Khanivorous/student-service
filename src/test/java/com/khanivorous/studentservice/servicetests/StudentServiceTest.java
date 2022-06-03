@@ -3,7 +3,7 @@ package com.khanivorous.studentservice.servicetests;
 import com.khanivorous.studentservice.student.NoSuchIdException;
 import com.khanivorous.studentservice.student.models.Student;
 import com.khanivorous.studentservice.student.repository.StudentRepository;
-import com.khanivorous.studentservice.student.services.StudentService;
+import com.khanivorous.studentservice.student.services.StudentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,11 +24,11 @@ public class StudentServiceTest {
     @Spy
     private StudentRepository studentRepository;
 
-    StudentService serviceUnderTest;
+    StudentServiceImpl serviceUnderTest;
 
     @BeforeEach
     public void setUp() {
-        this.serviceUnderTest = new StudentService(studentRepository);
+        this.serviceUnderTest = new StudentServiceImpl(studentRepository);
     }
 
     @Test
