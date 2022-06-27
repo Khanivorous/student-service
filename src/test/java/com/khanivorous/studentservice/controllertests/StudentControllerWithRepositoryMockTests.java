@@ -31,7 +31,7 @@ class StudentControllerWithRepositoryMockTests {
     private MockMvc mockMvc;
 
     @MockBean
-    StudentRepository studentRepository;
+    private StudentRepository studentRepository;
 
     @Test
     public void testGetAllUsers() throws Exception {

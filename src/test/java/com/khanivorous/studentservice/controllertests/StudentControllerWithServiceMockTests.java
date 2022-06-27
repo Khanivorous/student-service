@@ -28,7 +28,7 @@ public class StudentControllerWithServiceMockTests {
     private MockMvc mockMvc;
 
     @MockBean
-    StudentService studentService;
+    private StudentService studentService;
 
     @Test
     public void testGetAllUsers() throws Exception {

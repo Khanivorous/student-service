@@ -24,7 +24,7 @@ public class StudentServiceTest {
     @Spy
     private StudentRepository studentRepository;
 
-    StudentServiceImpl serviceUnderTest;
+    private StudentServiceImpl serviceUnderTest;
 
     @BeforeEach
     public void setUp() {
