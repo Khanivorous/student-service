@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/students")
 public class StudentController {
 
-    private final StudentService studentService;
+    private StudentService studentService;
 
     @Autowired
     public StudentController(StudentService studentService) {
-        this.studentService = studentService ;
+        this.studentService = studentService;
     }
 
     @PostMapping(path = "/add")
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Student addNewStudent(@RequestParam String name, @RequestParam Integer age) {
-       return studentService.addNewStudent(name,age);
+        return studentService.addNewStudent(name, age);
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

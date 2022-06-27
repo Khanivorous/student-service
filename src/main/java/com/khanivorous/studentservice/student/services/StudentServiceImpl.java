@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class StudentServiceImpl implements StudentService {
 
-    StudentRepository studentRepository;
+    private StudentRepository studentRepository;
 
     public StudentServiceImpl(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
 
-    public Student getStudentById (int id) {
-        return studentRepository.findById(id).orElseThrow(()-> new NoSuchIdException(id));
+    public Student getStudentById(int id) {
+        return studentRepository.findById(id).orElseThrow(() -> new NoSuchIdException(id));
     }
 
     public Iterable<Student> getAllStudents() {
@@ -33,7 +33,7 @@ public class StudentServiceImpl implements StudentService {
     public String deleteStudentById(int id) {
         if (studentRepository.existsById(id)) {
             studentRepository.deleteById(id);
-            return "student with id " +id+ " deleted";
+            return "student with id " + id + " deleted";
         } else {
             throw new NoSuchIdException(id);
         }
