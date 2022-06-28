@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>14</java.version>
-        <io-rest-assured.version>4.2.0</io-rest-assured.version>
+        <io-rest-assured.version>5.1.1</io-rest-assured.version>
     </properties>
 
     <dependencies>
@@ -39,6 +39,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.6.9</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -89,9 +94,8 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.7</version>
+            <version>0.8.8</version>
         </dependency>
-
     </dependencies>
 
     <build>

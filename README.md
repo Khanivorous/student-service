@@ -7,6 +7,8 @@ with testing spring framework applications.
 
 If you want to run the app using docker, the [docker-compose](docker-compose.yml) file can be used to create the services locally to run and play around with.
 
+## Swagger ui
+You can access the swagger ui at http://localhost:8081/swagger-ui/index.html#
 
 ## Workflows on GitHub Actions
 
