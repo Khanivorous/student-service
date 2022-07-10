@@ -1,13 +1,16 @@
 package com.khanivorous.studentservice.applicationtests;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khanivorous.studentservice.student.NoSuchIdException;
-import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.entities.Student;
+import com.khanivorous.studentservice.student.model.StudentCreationDTO;
 import com.khanivorous.studentservice.student.repository.StudentRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -80,11 +83,24 @@ public class StudentApplicationTest {
     @Test
     public void testAddNewStudent() throws Exception {
 
+        ObjectMapper mapper = new ObjectMapper();
+        StudentCreationDTO student = new StudentCreationDTO("Andy", 22);
+        String requestBody = mapper.writeValueAsString(student);
+
+        Student student1 = new Student();
+        student1.setId(1);
+        student1.setName("Andy");
+        student1.setAge(22);
+
+        when(studentRepository.save(any(Student.class))).thenReturn(student1);
+
         mockMvc.perform(post("/students/add")
-                        .param("name", "Andy")
-                        .param("age", "22"))
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("{\"id\":null,\"name\":\"Andy\",\"age\":22}"));
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Andy")))
+                .andExpect(jsonPath("$.age", is(22)));
     }
 
     @Test

@@ -1,33 +1,40 @@
 package com.khanivorous.studentservice.student.services;
 
 import com.khanivorous.studentservice.student.NoSuchIdException;
-import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.entities.Student;
+import com.khanivorous.studentservice.student.mapper.StudentMapper;
+import com.khanivorous.studentservice.student.model.StudentDTO;
 import com.khanivorous.studentservice.student.repository.StudentRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class StudentServiceImpl implements StudentService {
 
     private StudentRepository studentRepository;
 
-    public StudentServiceImpl(StudentRepository studentRepository) {
+    private StudentMapper studentMapper;
+
+    public StudentServiceImpl(StudentRepository studentRepository, StudentMapper studentMapper) {
         this.studentRepository = studentRepository;
+        this.studentMapper = studentMapper;
     }
 
-    public Student getStudentById(int id) {
-        return studentRepository.findById(id).orElseThrow(() -> new NoSuchIdException(id));
+    public StudentDTO getStudentById(int id) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new NoSuchIdException(id));
+        return studentMapper.toDTO(student);
     }
 
-    public Iterable<Student> getAllStudents() {
-        return studentRepository.findAll();
+    public List<StudentDTO> getAllStudents() {
+        return studentMapper.toDTOList(studentRepository.findAll());
     }
 
-    public Student addNewStudent(String name, int age) {
+    public StudentDTO addNewStudent(String name, int age) {
         Student newStudent = new Student();
         newStudent.setName(name);
         newStudent.setAge(age);
-        studentRepository.save(newStudent);
-        return newStudent;
+        return  studentMapper.toDTO(studentRepository.save(newStudent));
     }
 
     public String deleteStudentById(int id) {

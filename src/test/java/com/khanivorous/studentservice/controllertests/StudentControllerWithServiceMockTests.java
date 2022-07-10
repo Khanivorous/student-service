@@ -1,16 +1,22 @@
 package com.khanivorous.studentservice.controllertests;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khanivorous.studentservice.student.NoSuchIdException;
 import com.khanivorous.studentservice.student.controllers.StudentController;
-import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.entities.Student;
+import com.khanivorous.studentservice.student.mapper.StudentMapper;
+import com.khanivorous.studentservice.student.model.StudentCreationDTO;
+import com.khanivorous.studentservice.student.model.StudentDTO;
 import com.khanivorous.studentservice.student.services.StudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,17 +34,17 @@ public class StudentControllerWithServiceMockTests {
     private MockMvc mockMvc;
 
     @MockBean
+    private StudentMapper studentMapper;
+
+    @MockBean
     private StudentService studentService;
 
     @Test
     public void testGetAllUsers() throws Exception {
 
-        Student student1 = new Student();
-        student1.setId(1);
-        student1.setName("Ben");
-        student1.setAge(28);
+        StudentDTO student1 = new StudentDTO(1,"Ben",28);
 
-        ArrayList<Student> studentList = new ArrayList<>();
+        List<StudentDTO> studentList = new ArrayList<>();
         studentList.add(student1);
 
         when(studentService.getAllStudents()).thenReturn(studentList);
@@ -53,10 +59,7 @@ public class StudentControllerWithServiceMockTests {
     @Test
     public void testGetUserById() throws Exception {
 
-        Student student1 = new Student();
-        student1.setId(1);
-        student1.setName("Ben");
-        student1.setAge(28);
+        StudentDTO student1 = new StudentDTO(1,"Ben", 28);
 
         when(studentService.getStudentById(1)).thenReturn(student1);
 
@@ -78,16 +81,17 @@ public class StudentControllerWithServiceMockTests {
     @Test
     public void testAddNewStudent() throws Exception {
 
-        Student student = new Student();
-        student.setId(1);
-        student.setName("Andy");
-        student.setAge(22);
+        StudentDTO student = new StudentDTO(1,"Andy",22);
 
         when(studentService.addNewStudent(anyString(), anyInt())).thenReturn(student);
 
+        ObjectMapper mapper = new ObjectMapper();
+        StudentCreationDTO studentDTO = new StudentCreationDTO("Andy", 22);
+        String requestBody = mapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(post("/students/add")
-                        .param("name", "Andy")
-                        .param("age", "22"))
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Andy")))
                 .andExpect(jsonPath("$.id", is(1)))
