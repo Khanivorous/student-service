@@ -1,16 +1,21 @@
 package com.khanivorous.studentservice.controllertests;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khanivorous.studentservice.StudentServiceApplication;
 import com.khanivorous.studentservice.student.NoSuchIdException;
 import com.khanivorous.studentservice.student.controllers.StudentController;
-import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.entities.Student;
+import com.khanivorous.studentservice.student.mapper.StudentMapper;
+import com.khanivorous.studentservice.student.model.StudentCreationDTO;
 import com.khanivorous.studentservice.student.repository.StudentRepository;
 import com.khanivorous.studentservice.student.services.StudentServiceImpl;
-import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.Test;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,7 +29,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(StudentController.class)
-@ContextConfiguration(classes = {StudentServiceApplication.class, StudentServiceImpl.class})
+@ContextConfiguration(classes = {
+        StudentServiceApplication.class,
+        StudentServiceImpl.class,
+        StudentMapper.class})
 class StudentControllerWithRepositoryMockTests {
 
     @Autowired
@@ -81,12 +89,23 @@ class StudentControllerWithRepositoryMockTests {
     @Test
     public void testAddNewStudent() throws Exception {
 
+        ObjectMapper mapper = new ObjectMapper();
+        StudentCreationDTO student = new StudentCreationDTO("Andy", 22);
+        String requestBody = mapper.writeValueAsString(student);
+
+        Student student1 = new Student();
+        student1.setId(1);
+        student1.setName("Andy");
+        student1.setAge(22);
+
+        when(studentRepository.save(any(Student.class))).thenReturn(student1);
+
         mockMvc.perform(post("/students/add")
-                        .param("name", "Andy")
-                        .param("age", "22"))
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Andy")))
-                .andExpect(jsonPath("$.id").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.age", is(22)));
     }
 

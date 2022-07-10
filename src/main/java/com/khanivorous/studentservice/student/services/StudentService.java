@@ -1,16 +1,19 @@
 package com.khanivorous.studentservice.student.services;
 
-import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.entities.Student;
+import com.khanivorous.studentservice.student.model.StudentDTO;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface StudentService {
 
-    Student getStudentById(int id);
+    StudentDTO getStudentById(int id);
 
-    Iterable<Student> getAllStudents();
+    List<StudentDTO> getAllStudents();
 
-    Student addNewStudent(String name, int age);
+    StudentDTO addNewStudent(String name, int age);
 
     String deleteStudentById(int id);
 

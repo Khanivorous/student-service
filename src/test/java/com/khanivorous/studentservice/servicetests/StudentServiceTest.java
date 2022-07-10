@@ -1,7 +1,9 @@
 package com.khanivorous.studentservice.servicetests;
 
 import com.khanivorous.studentservice.student.NoSuchIdException;
-import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.entities.Student;
+import com.khanivorous.studentservice.student.mapper.StudentMapper;
+import com.khanivorous.studentservice.student.model.StudentDTO;
 import com.khanivorous.studentservice.student.repository.StudentRepository;
 import com.khanivorous.studentservice.student.services.StudentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,9 +29,12 @@ public class StudentServiceTest {
 
     private StudentServiceImpl serviceUnderTest;
 
+    @Spy
+    private StudentMapper studentMapper;
+
     @BeforeEach
     public void setUp() {
-        this.serviceUnderTest = new StudentServiceImpl(studentRepository);
+        this.serviceUnderTest = new StudentServiceImpl(studentRepository,studentMapper);
     }
 
     @Test
@@ -39,8 +45,13 @@ public class StudentServiceTest {
         student1.setAge(28);
         when(studentRepository.findById(1)).thenReturn(Optional.of(student1));
 
-        Student response = serviceUnderTest.getStudentById(1);
-        assertEquals(student1, response);
+        StudentDTO response = serviceUnderTest.getStudentById(1);
+
+        assertEquals(student1.getId(), response.id());
+        assertEquals(student1.getName(), response.name());
+        assertEquals(student1.getAge(), response.age());
+
+        verify(studentMapper, times(1)).toDTO(any(Student.class));
     }
 
     @Test
@@ -65,16 +76,26 @@ public class StudentServiceTest {
 
         when(studentRepository.findAll()).thenReturn(studentList);
 
-        Iterable<Student> response = serviceUnderTest.getAllStudents();
-        assertEquals(studentList, response);
+        List<StudentDTO> response = serviceUnderTest.getAllStudents();
+        assertEquals(studentList.get(0).getId(), response.get(0).id());
+        assertEquals(studentList.get(0).getName(), response.get(0).name());
+        assertEquals(studentList.get(0).getAge(), response.get(0).age());
+
+        verify(studentMapper, times(1)).toDTOList(anyIterable());
     }
 
     @Test
     public void testAddNewStudent() {
-        Student actualStudent = serviceUnderTest.addNewStudent("john", 23);
 
-        assertEquals("john", actualStudent.getName());
-        assertEquals(23, actualStudent.getAge());
+        Student student = new Student();
+        student.setId(1);
+        student.setName("Andy");
+        student.setAge(22);
+
+        when(studentRepository.save(any(Student.class))).thenReturn(student);
+
+        serviceUnderTest.addNewStudent("john", 23);
+        verify(studentMapper, times(1)).toDTO(any(Student.class));
     }
 
 

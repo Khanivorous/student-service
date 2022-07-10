@@ -1,6 +1,8 @@
 package com.khanivorous.studentservice;
 
+import com.khanivorous.studentservice.student.model.StudentCreationDTO;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,8 +26,10 @@ public class E2ETests {
     @Test
     public void testAddGetAndDelete() {
 
-        given().param("name", "Andy")
-                .param("age", "22")
+        StudentCreationDTO studentDTO = new StudentCreationDTO("Andy", 22);
+
+        given().body(studentDTO)
+                .contentType(ContentType.JSON)
                 .post("/add")
                 .then()
                 .assertThat()

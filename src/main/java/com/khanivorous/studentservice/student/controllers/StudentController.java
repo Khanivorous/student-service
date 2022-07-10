@@ -1,7 +1,8 @@
 package com.khanivorous.studentservice.student.controllers;
 
 import com.khanivorous.studentservice.student.NoSuchIdException;
-import com.khanivorous.studentservice.student.models.Student;
+import com.khanivorous.studentservice.student.model.StudentCreationDTO;
+import com.khanivorous.studentservice.student.model.StudentDTO;
 import com.khanivorous.studentservice.student.services.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/students")
@@ -31,12 +34,15 @@ public class StudentController {
             @ApiResponse(
                     responseCode = "201",
                     description = "Added new student",
-                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Student.class)) }
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = StudentDTO.class)) }
             )})
-    @PostMapping(path = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/add",consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Student addNewStudent(@RequestParam String name, @RequestParam Integer age) {
+    StudentDTO addNewStudent(@RequestBody StudentCreationDTO student) {
+        String name = student.name();
+        int age = student.age();
         return studentService.addNewStudent(name, age);
     }
 
@@ -45,14 +51,14 @@ public class StudentController {
             @ApiResponse(
                     responseCode = "200",
                     description = "found student",
-                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Student.class)) }
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = StudentDTO.class)) }
             ),
             @ApiResponse(responseCode = "404", description = "Student not found",
                     content =  @Content)})
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    Student getUserById(@Parameter(description = "id of student to be searched") @PathVariable Integer id) {
+    StudentDTO getUserById(@Parameter(description = "id of student to be searched") @PathVariable Integer id) {
         return studentService.getStudentById(id);
     }
 
@@ -64,13 +70,13 @@ public class StudentController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Student.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = StudentDTO.class))
                     )}
             )})
     @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    Iterable<Student> getAllUsers() {
+    List<StudentDTO> getAllUsers() {
         return studentService.getAllStudents();
     }
 

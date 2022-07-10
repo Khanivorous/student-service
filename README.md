@@ -33,7 +33,7 @@ This uses spring jpa library for data persistence.
 
 ### Student class
 The data to be persisted and retrieved is data about a student. This object contains: name, age and an id number;
-The [Student.java](src/main/java/com/khanivorous/studentservice/student/models/Student.java) class is annotated with `@Entity` indicating that it is a Spring JPA entity. The field id annotated with`@Id` and `@Generated`. This tells jpa that this is an id field and to automatically generate the id.
+The [Student.java](src/main/java/com/khanivorous/studentservice/student/entities/Student.java) class is annotated with `@Entity` indicating that it is a Spring JPA entity. The field id annotated with`@Id` and `@Generated`. This tells jpa that this is an id field and to automatically generate the id.
 
 ```java
 @Entity
@@ -46,6 +46,13 @@ public class Student {
     // rest of class
 }
 ```
+
+### Student creation DTO class
+This class is to represent data processed for the post request from clients
+
+### Student DTO class
+This is a DTO class for Student object
+
 ### Student repository class
 This [StudentRepository.java](src/main/java/com/khanivorous/studentservice/student/repository/StudentRepository.java) class is an interface extending Springs CrudRepository. JPA will create an implementation of this interface when running the application.
 You can read more on Spring JPA [here](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference)
@@ -94,12 +101,12 @@ This allows us to demonstrate a useful feature of Mockito for testing purposes.
 
 ```java
 @Service
-public class StudentService {
+public class StudentServiceImpl implements StudentService {
     //...
-    public String deleteStudentById(Integer id) {
+    public String deleteStudentById(int id) {
         if (studentRepository.existsById(id)) {
             studentRepository.deleteById(id);
-            return "student with id " +id+ " deleted";
+            return "student with id " + id + " deleted";
         } else {
             throw new NoSuchIdException(id);
         }
@@ -118,17 +125,27 @@ For example, when the user adds a user with the query params `name` and `age`, t
 @RequestMapping(path = "/students")
 public class StudentController {
 
-    private final StudentService studentService;
+    private StudentService studentService;
 
     @Autowired
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
 
-    @PostMapping(path = "/add")
+    @Operation(summary = "Add a new Student")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Added new student",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Student.class)) }
+            )})
+    @PostMapping(path = "/add",consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Student addNewStudent(@RequestParam String name, @RequestParam Integer age) {
+    Student addNewStudent(@RequestBody StudentCreationDTO student) {
+        String name = student.name();
+        int age = student.age();
         return studentService.addNewStudent(name, age);
     }
     
@@ -176,8 +193,8 @@ The 5 test classes in this repository are
 
 - [StudentServiceTest](src/test/java/com/khanivorous/studentservice/servicetests/StudentServiceTest.java)
 - [StudentApplicationTest](src/test/java/com/khanivorous/studentservice/applicationtests/StudentApplicationTest.java)
-- [StudentControllerTestsWithServiceMock](src/test/java/com/khanivorous/studentservice/controllertests/StudentControllerTestsWithServiceMock.java)
-- [StudentControllerTestsWithRepositoryMock](src/test/java/com/khanivorous/studentservice/controllertests/StudentControllerTestsWithRepositoryMock.java)
+- [StudentControllerWithServiceMockTests](src/test/java/com/khanivorous/studentservice/controllertests/StudentControllerWithServiceMockTests.java)
+- [StudentControllerWithRepositoryMockTests](src/test/java/com/khanivorous/studentservice/controllertests/StudentControllerWithRepositoryMockTests.java)
 - [E2ETests](src/test/java/com/khanivorous/studentservice/E2ETests.java)
 
 
@@ -359,7 +376,7 @@ When an exception is thrown, the controller will respond with a HTTP status code
 Now, let's look at this test:
 ```java
 @WebMvcTest(StudentController.class)
-public class StudentControllerTestsWithServiceMock {
+public class StudentControllerWithServiceMockTests {
     //...
     @Test
     public void testGetUserById() throws Exception {
@@ -391,7 +408,7 @@ Now let's look at a test which checks that the correct message and HTTP response
 
 ```java
 @WebMvcTest(StudentController.class)
-public class StudentControllerTestsWithServiceMock {
+public class StudentControllerWithServiceMockTests {
     //...
     @Test
     public void testUnknownIdReturnsError() throws Exception {
@@ -409,7 +426,7 @@ We then check the correct status code is returned: `andExpect(status().isNotFoun
 #### StudentControllerTestsWithRepositoryMock
 This test class also tests the StudentController, except we are mocking the repository instead of the service. 
 I wanted to show you this just to note different levels of mocking possibilities.  
-You will notice the `@ContextConfiguration(classes = {StudentServiceApplication.class, StudentService.class})` line at the top of the class.
+You will notice the `@ContextConfiguration(classes = {StudentServiceApplication.class, StudentServiceImpl.class})` line at the top of the class.
 Because we did not mock the service we have to tell spring to load it into the context along with the `StudentServiceApplication.class`.
 
 ### StudentApplicationTest
