@@ -10,11 +10,9 @@ import com.khanivorous.studentservice.student.model.StudentCreationDTO;
 import com.khanivorous.studentservice.student.repository.StudentRepository;
 import com.khanivorous.studentservice.student.services.StudentServiceImpl;
 import org.junit.jupiter.api.Test;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,7 +52,7 @@ class StudentControllerWithRepositoryMockTests {
 
         when(studentRepository.findAll()).thenReturn(studentList);
 
-        mockMvc.perform(get("/students/all"))
+        mockMvc.perform(get("/students"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name", is("Ben")))
                 .andExpect(jsonPath("$[0].id", is(1)))
@@ -100,7 +98,7 @@ class StudentControllerWithRepositoryMockTests {
 
         when(studentRepository.save(any(Student.class))).thenReturn(student1);
 
-        mockMvc.perform(post("/students/add")
+        mockMvc.perform(post("/students")
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -114,8 +112,7 @@ class StudentControllerWithRepositoryMockTests {
 
         when(studentRepository.existsById(1)).thenReturn(true);
         mockMvc.perform(delete("/students/1"))
-                .andExpect(status().isAccepted())
-                .andExpect(content().string("student with id 1 deleted"));
+                .andExpect(status().isNoContent());
         verify(studentRepository, times(1)).deleteById(1);
     }
 

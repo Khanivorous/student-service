@@ -46,7 +46,7 @@ public class StudentApplicationTest {
 
         when(studentRepository.findAll()).thenReturn(studentList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/students/all"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/students"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name", is("Ben")))
                 .andExpect(jsonPath("$[0].id", is(1)))
@@ -94,7 +94,7 @@ public class StudentApplicationTest {
 
         when(studentRepository.save(any(Student.class))).thenReturn(student1);
 
-        mockMvc.perform(post("/students/add")
+        mockMvc.perform(post("/students")
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -108,8 +108,7 @@ public class StudentApplicationTest {
 
         when(studentRepository.existsById(1)).thenReturn(true);
         mockMvc.perform(delete("/students/1"))
-                .andExpect(status().isAccepted())
-                .andExpect(content().string("student with id 1 deleted"));
+                .andExpect(status().isNoContent());
     }
 
     @Test

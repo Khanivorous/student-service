@@ -36,7 +36,7 @@ public class StudentController {
                     description = "Added new student",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = StudentDTO.class)) }
             )})
-    @PostMapping(path = "/add",consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
@@ -73,7 +73,7 @@ public class StudentController {
                                     array = @ArraySchema(schema = @Schema(implementation = StudentDTO.class))
                     )}
             )})
-    @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     List<StudentDTO> getAllUsers() {
@@ -90,10 +90,10 @@ public class StudentController {
             @ApiResponse(responseCode = "404", description = "Student not found",
                     content =  @Content)})
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public @ResponseBody
-    String deleteStudent(@Parameter(description = "id of student to be deleted") @PathVariable Integer id) {
-        return studentService.deleteStudentById(id);
+    void deleteStudent(@Parameter(description = "id of student to be deleted") @PathVariable Integer id) {
+        studentService.deleteStudentById(id);
     }
 
     @ResponseBody

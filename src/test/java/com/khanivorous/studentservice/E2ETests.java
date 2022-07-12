@@ -3,6 +3,7 @@ package com.khanivorous.studentservice;
 import com.khanivorous.studentservice.student.model.StudentCreationDTO;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +31,7 @@ public class E2ETests {
 
         given().body(studentDTO)
                 .contentType(ContentType.JSON)
-                .post("/add")
+                .post()
                 .then()
                 .assertThat()
                 .body(is("{\"id\":1,\"name\":\"Andy\",\"age\":22}"))
@@ -47,10 +48,9 @@ public class E2ETests {
         given().delete("/1")
                 .then()
                 .assertThat()
-                .body(is("student with id 1 deleted"))
-                .statusCode(is(202));
+                .statusCode(is(204));
 
-        given().get("/all")
+        given().get()
                 .then()
                 .assertThat()
                 .body("isEmpty()", is(true))

@@ -3,7 +3,6 @@ package com.khanivorous.studentservice.controllertests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khanivorous.studentservice.student.NoSuchIdException;
 import com.khanivorous.studentservice.student.controllers.StudentController;
-import com.khanivorous.studentservice.student.entities.Student;
 import com.khanivorous.studentservice.student.mapper.StudentMapper;
 import com.khanivorous.studentservice.student.model.StudentCreationDTO;
 import com.khanivorous.studentservice.student.model.StudentDTO;
@@ -20,12 +19,11 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @WebMvcTest(StudentController.class)
 public class StudentControllerWithServiceMockTests {
@@ -42,14 +40,14 @@ public class StudentControllerWithServiceMockTests {
     @Test
     public void testGetAllUsers() throws Exception {
 
-        StudentDTO student1 = new StudentDTO(1,"Ben",28);
+        StudentDTO student1 = new StudentDTO(1, "Ben", 28);
 
         List<StudentDTO> studentList = new ArrayList<>();
         studentList.add(student1);
 
         when(studentService.getAllStudents()).thenReturn(studentList);
 
-        mockMvc.perform(get("/students/all"))
+        mockMvc.perform(get("/students"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name", is("Ben")))
                 .andExpect(jsonPath("$[0].id", is(1)))
@@ -59,7 +57,7 @@ public class StudentControllerWithServiceMockTests {
     @Test
     public void testGetUserById() throws Exception {
 
-        StudentDTO student1 = new StudentDTO(1,"Ben", 28);
+        StudentDTO student1 = new StudentDTO(1, "Ben", 28);
 
         when(studentService.getStudentById(1)).thenReturn(student1);
 
@@ -81,7 +79,7 @@ public class StudentControllerWithServiceMockTests {
     @Test
     public void testAddNewStudent() throws Exception {
 
-        StudentDTO student = new StudentDTO(1,"Andy",22);
+        StudentDTO student = new StudentDTO(1, "Andy", 22);
 
         when(studentService.addNewStudent(anyString(), anyInt())).thenReturn(student);
 
@@ -89,7 +87,7 @@ public class StudentControllerWithServiceMockTests {
         StudentCreationDTO studentDTO = new StudentCreationDTO("Andy", 22);
         String requestBody = mapper.writeValueAsString(studentDTO);
 
-        mockMvc.perform(post("/students/add")
+        mockMvc.perform(post("/students")
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -101,21 +99,18 @@ public class StudentControllerWithServiceMockTests {
     @Test
     public void testDeleteStudentById() throws Exception {
 
-        when(studentService.deleteStudentById(1)).thenReturn("student with id 1 deleted");
         mockMvc.perform(delete("/students/1"))
-                .andExpect(status().isAccepted())
-                .andExpect(content().string("student with id 1 deleted"));
+                .andExpect(status().isNoContent());
+        verify(studentService, times(1)).deleteStudentById(1);
     }
 
     @Test
     public void testDeleteNonExistentStudentThrowsError() throws Exception {
 
-        when(studentService.deleteStudentById(1)).thenThrow(new NoSuchIdException(1));
+        doThrow(new NoSuchIdException(1)).when(studentService).deleteStudentById(1);
         mockMvc.perform(delete("/students/1"))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Could not find student with id 1"))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoSuchIdException));
-
     }
 
 }
