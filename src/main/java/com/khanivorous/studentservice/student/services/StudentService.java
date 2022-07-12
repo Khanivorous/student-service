@@ -15,6 +15,6 @@ public interface StudentService {
 
     StudentDTO addNewStudent(String name, int age);
 
-    String deleteStudentById(int id);
+    void deleteStudentById(int id);
 
 }

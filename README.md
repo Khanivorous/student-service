@@ -58,12 +58,12 @@ This [StudentRepository.java](src/main/java/com/khanivorous/studentservice/stude
 You can read more on Spring JPA [here](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference)
 
 ### Student service class
-The [StudentService.java](src/main/java/com/khanivorous/studentservice/student/services/StudentService.java) class uses the student repository and performs some extra business logic.
+The [StudentServiceImpl.java](src/main/java/com/khanivorous/studentservice/student/services/StudentServiceImpl.java) class uses the student repository and performs some extra business logic.
 
 For example, in this service class, adding a student uses the repository void method `save()`. Here we use save and return a Student object to present back to the user. 
 ```java
 @Service
-public class StudentService {
+public class StudentServiceImpl implements StudentService {
     
     StudentRepository studentRepository;
 
@@ -85,11 +85,12 @@ public class StudentService {
 The following method returns a Student object when searching by id. Additionally, it throws a custom exception `NoSuchIdException` if that id does not exist.
 
 ```java
+
 @Service
-public class StudentService {
+public class StudentServiceImpl implements StudentService {
     //...
-    public Student getStudentById (Integer id) {
-        return studentRepository.findById(id).orElseThrow(()-> new NoSuchIdException(id));
+    public Student getStudentById(Integer id) {
+        return studentRepository.findById(id).orElseThrow(() -> new NoSuchIdException(id));
     }
     //...
 }
@@ -103,10 +104,9 @@ This allows us to demonstrate a useful feature of Mockito for testing purposes.
 @Service
 public class StudentServiceImpl implements StudentService {
     //...
-    public String deleteStudentById(int id) {
+    public void deleteStudentById(int id) {
         if (studentRepository.existsById(id)) {
             studentRepository.deleteById(id);
-            return "student with id " + id + " deleted";
         } else {
             throw new NoSuchIdException(id);
         }
@@ -118,7 +118,13 @@ public class StudentServiceImpl implements StudentService {
 ### Student controller class
 The [StudentController.java](src/main/java/com/khanivorous/studentservice/student/controllers/StudentController.java) class defines the HTTP mappings and the appropriate responses including the exceptions and response codes.
 It uses the StudentService class to perform the business logic and returns the response to the user.
-For example, when the user adds a user with the query params `name` and `age`, this will respond with a 201 created status code and a json response of the student added:
+For example, when the user adds a user with a post request of an object like 
+```json 
+{ "name" : "anyName",
+  "age: 22
+}
+``` 
+this will respond with a 201 created status code and a json response of the student added:
 
 ```java
 @RestController
@@ -139,7 +145,7 @@ public class StudentController {
                     description = "Added new student",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Student.class)) }
             )})
-    @PostMapping(path = "/add",consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
@@ -223,14 +229,16 @@ We have also marked the class with `@ExtendWith(MockitoExtension.class)`, which 
 Let's now take a closer look at a couple of different tests in this test class.
 
 Firstly, let's look at a method in the service class that we want to test `deleteStudentById(Integer id)`:
+
 ```java
+import com.khanivorous.studentservice.student.services.StudentService;
+
 @Service
-public class StudentService {
+public class StudentServiceImpl implements StudentService {
     //...
-    public String deleteStudentById(Integer id) {
+    public void deleteStudentById(Integer id) {
         if (studentRepository.existsById(id)) {
             studentRepository.deleteById(id);
-            return "student with id " + id + " deleted";
         } else {
             throw new NoSuchIdException(id);
         }
@@ -252,7 +260,6 @@ public class StudentServiceTest {
     public void testDeleteById() {
         when(studentRepository.existsById(1)).thenReturn(true);
         String response = serviceUnderTest.deleteStudentById(1);
-        assertEquals("student with id 1 deleted", response);
         verify(studentRepository, times(1)).deleteById(1);
     }
     //...
@@ -412,10 +419,10 @@ public class StudentControllerWithServiceMockTests {
     //...
     @Test
     public void testUnknownIdReturnsError() throws Exception {
-        when(studentService.getStudentById(2)).thenThrow(new NoSuchIdException(2));
-        mockMvc.perform(get("/students/2"))
+        doThrow(new NoSuchIdException(1)).when(studentService).deleteStudentById(1);
+        mockMvc.perform(get("/students/1"))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Could not find student with id 2"));
+                .andExpect(content().string("Could not find student with id 1"));
     }
     //...
 }

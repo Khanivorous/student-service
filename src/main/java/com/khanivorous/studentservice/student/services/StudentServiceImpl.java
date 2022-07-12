@@ -37,10 +37,9 @@ public class StudentServiceImpl implements StudentService {
         return  studentMapper.toDTO(studentRepository.save(newStudent));
     }
 
-    public String deleteStudentById(int id) {
+    public void deleteStudentById(int id) {
         if (studentRepository.existsById(id)) {
             studentRepository.deleteById(id);
-            return "student with id " + id + " deleted";
         } else {
             throw new NoSuchIdException(id);
         }

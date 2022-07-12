@@ -102,8 +102,7 @@ public class StudentServiceTest {
     @Test
     public void testDeleteById() {
         when(studentRepository.existsById(1)).thenReturn(true);
-        String response = serviceUnderTest.deleteStudentById(1);
-        assertEquals("student with id 1 deleted", response);
+        serviceUnderTest.deleteStudentById(1);
         verify(studentRepository, times(1)).deleteById(1);
     }
 
