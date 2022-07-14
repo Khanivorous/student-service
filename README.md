@@ -1,14 +1,20 @@
 # Student Service Application
 
-This is a simple demo rest api project that saves and returns student data from a mysql db.
+The purpose of this project is to demonstrate testing of a simple spring rest application.  
 
-This is to show various tests we can do against a simple springboot application. In here I will cover unit tests through to end-to-end tests, and hopefully it helps to get you familiar
+This is a rest api that saves and returns student data to, and from a mysql db.
+
+This project covers unit tests through to end-to-end tests, and hopefully it helps to get you familiar
 with testing spring framework applications.
 
-If you want to run the app using docker, the [docker-compose](docker-compose.yml) file can be used to create the services locally to run and play around with.
+## Running the application
 
-## Swagger ui
-You can access the swagger ui at http://localhost:8081/swagger-ui/index.html#
+If you want to run the app using docker, first, build the application jar using `mvn package`, then 
+run the [docker-compose](docker-compose.yml) file with `docker compose up` can be used to create the services locally to run and play around with, including the mysql database.  
+
+This will be available at http://localhost:8081/students.  
+
+You can access the swagger ui at http://localhost:8081/swagger-ui/index.html where you can also play around with the application.
 
 ## Workflows on GitHub Actions
 
@@ -48,10 +54,30 @@ public class Student {
 ```
 
 ### Student creation DTO class
-This class is to represent data processed for the post request from clients
+This class is to represent data processed for the post request from clients [StudentCreationDTO](src/main/java/com/khanivorous/studentservice/student/model/StudentCreationDTO.java)
+
+```java
+public record StudentCreationDTO(
+        @NotEmpty(message = "name must not be empty")
+        String name,
+        @NotNull(message = "age must not be null")
+        @Min(value = 17, message = "age cannot be less than 17 years old")
+        Integer age) {
+}
+```
 
 ### Student DTO class
-This is a DTO class for Student object
+This is a DTO class for Student object [StudentDTO](src/main/java/com/khanivorous/studentservice/student/model/StudentDTO.java)  
+
+```java
+public record StudentDTO(Integer id, String name, Integer age) {
+}
+```
+
+### Student mapper class
+This class maps Student entity class to the StudentDTO class, allowing us to separate entity for persistence and the object for data transfer.
+[StudentMapper](src/main/java/com/khanivorous/studentservice/student/mapper/StudentMapper.java)
+
 
 ### Student repository class
 This [StudentRepository.java](src/main/java/com/khanivorous/studentservice/student/repository/StudentRepository.java) class is an interface extending Springs CrudRepository. JPA will create an implementation of this interface when running the application.
@@ -61,22 +87,25 @@ You can read more on Spring JPA [here](https://docs.spring.io/spring-data/jpa/do
 The [StudentServiceImpl.java](src/main/java/com/khanivorous/studentservice/student/services/StudentServiceImpl.java) class uses the student repository and performs some extra business logic.
 
 For example, in this service class, adding a student uses the repository void method `save()`. Here we use save and return a Student object to present back to the user. 
+It uses the student mapper class to convert the entity class to a data transfer object.
 ```java
 @Service
 public class StudentServiceImpl implements StudentService {
-    
-    StudentRepository studentRepository;
 
-    public StudentService(StudentRepository studentRepository) {
+    private StudentRepository studentRepository;
+
+    private StudentMapper studentMapper;
+
+    public StudentServiceImpl(StudentRepository studentRepository, StudentMapper studentMapper) {
         this.studentRepository = studentRepository;
+        this.studentMapper = studentMapper;
     }
 
-    public Student addNewStudent(String name, Integer age) {
+    public StudentDTO addNewStudent(String name, int age) {
         Student newStudent = new Student();
         newStudent.setName(name);
         newStudent.setAge(age);
-        studentRepository.save(newStudent);
-        return newStudent;
+        return  studentMapper.toDTO(studentRepository.save(newStudent));
     }
     //...rest of class omitted
 }
@@ -89,8 +118,9 @@ The following method returns a Student object when searching by id. Additionally
 @Service
 public class StudentServiceImpl implements StudentService {
     //...
-    public Student getStudentById(Integer id) {
-        return studentRepository.findById(id).orElseThrow(() -> new NoSuchIdException(id));
+    public StudentDTO getStudentById(int id) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new NoSuchIdException(id));
+        return studentMapper.toDTO(student);
     }
     //...
 }
@@ -149,7 +179,7 @@ public class StudentController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Student addNewStudent(@RequestBody StudentCreationDTO student) {
+    Student addNewStudent(@Valid @RequestBody StudentCreationDTO student) {
         String name = student.name();
         int age = student.age();
         return studentService.addNewStudent(name, age);
@@ -188,6 +218,55 @@ public class NoSuchIdException extends RuntimeException {
 }
 ```
 
+### Request validation
+
+We use `spring-boot-starter-validation` library to validate the client requests. We can see post request to validate the post request body.  
+Here we have added some rules via annotation on the `StudentCreationDTO`.  
+We mark the following rules:  
+* The name field must not be empty
+* Age must be a minimum of 17
+* Age must not be null
+
+```java
+public record StudentCreationDTO(
+        @NotEmpty(message = "name must not be empty")
+        String name,
+        @NotNull(message = "age must not be null")
+        @Min(value = 17, message = "age cannot be less than 17 years old")
+        Integer age) {
+}
+```
+
+We then tell the controller to validate this with the `@Valid` annotation:
+
+```java
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    StudentDTO addNewStudent(@Valid @RequestBody StudentCreationDTO student) {
+        String name = student.name();
+        int age = student.age();
+        return studentService.addNewStudent(name, age);
+    }
+```
+
+Finally, instead of using the default response json, we configure it ourselves with an ExceptionHandler:  
+
+```java
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
+```
+
 ## Testing
 There are 5 test classes in this repository which I use to demonstrate various spring tests tools/annotations, along with Mockito in order to test a simple spring boot application.
 
@@ -195,13 +274,14 @@ You will notice that there is significant _overtesting_, which in a real project
 
 Some of these are spring specific and some are to do with the Mockito mocking library itself, which can be used for any java library but is obviously very useful here too
 
-The 5 test classes in this repository are
+The 6 test classes in this repository are
 
 - [StudentServiceTest](src/test/java/com/khanivorous/studentservice/servicetests/StudentServiceTest.java)
 - [StudentApplicationTest](src/test/java/com/khanivorous/studentservice/applicationtests/StudentApplicationTest.java)
 - [StudentControllerWithServiceMockTests](src/test/java/com/khanivorous/studentservice/controllertests/StudentControllerWithServiceMockTests.java)
 - [StudentControllerWithRepositoryMockTests](src/test/java/com/khanivorous/studentservice/controllertests/StudentControllerWithRepositoryMockTests.java)
 - [E2ETests](src/test/java/com/khanivorous/studentservice/E2ETests.java)
+- [StudentMapperTest](src/test/java/com/khanivorous/studentservice/mappertests/StudentMapperTest.java)
 
 
 ### StudentServiceTest
@@ -308,13 +388,13 @@ We _could_ test the controller by spinning up the whole application context and 
 But spring lets us do a neat trick and spin up only the controller that we need to test. Within this project there is just one controller class, so it may not seem significant,
 but a larger project with more controller classes could benefit from this.
 
-#### StudentControllerTests
+#### StudentControllerWithServiceMockTests
 To test a controller by itself, we use the `@WebMvcTest` annotation and mark the controller class/classes we want to test.
 Here we do this for the `StudentController` class as follows:
 
 ```java
 @WebMvcTest(StudentController.class)
-public class StudentControllerTestsWithServiceMock {
+public class StudentControllerWithServiceMockTests {
     //...
 }
 ```
@@ -430,7 +510,7 @@ public class StudentControllerWithServiceMockTests {
 Here we get the mocked service layer to throw the exception. Now we expect the controller to handle the exception as defined in the `StudentController` class.  
 We then check the correct status code is returned: `andExpect(status().isNotFound())` and we check the content of the exception message is as expected: `andExpect(content().string("Could not find student with id 2"))`
 
-#### StudentControllerTestsWithRepositoryMock
+#### StudentControllerWithRepositoryMockTests
 This test class also tests the StudentController, except we are mocking the repository instead of the service. 
 I wanted to show you this just to note different levels of mocking possibilities.  
 You will notice the `@ContextConfiguration(classes = {StudentServiceApplication.class, StudentServiceImpl.class})` line at the top of the class.
@@ -473,3 +553,6 @@ Here, once again, we use the `@SpringBootTest` annotation to load the whole appl
 The `@LocalServerPort` annotation allocates the port number found to this field, which can be used by the RestAssured client with `RestAssured.port = port`.  
 The tests themselves are very different to the tests in the other test classes, as we have to write the test in a way that handles real data, as there are no mocks to change the data to test a greater variety of use cases.
 
+### StudentMapperTest
+
+This is a fairly simple set of tests not requiring any mocks. We simply assert the return values of the converter methods.

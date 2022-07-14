@@ -3,7 +3,7 @@ version: '3'
 services:
 
   students:
-    image: mysql:latest
+    image: mysql:8.0.29
     volumes:
       - mysql-data:/var/lib/mysql
     environment:
