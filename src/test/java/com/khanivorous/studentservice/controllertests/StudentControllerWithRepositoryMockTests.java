@@ -1,5 +1,6 @@
 package com.khanivorous.studentservice.controllertests;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khanivorous.studentservice.StudentServiceApplication;
 import com.khanivorous.studentservice.student.NoSuchIdException;
@@ -105,6 +106,45 @@ class StudentControllerWithRepositoryMockTests {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Andy")))
                 .andExpect(jsonPath("$.age", is(22)));
+    }
+
+    @Test
+    public void validateEmptyNameInRequest() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        StudentCreationDTO student = new StudentCreationDTO("", 16);
+        String requestBody = mapper.writeValueAsString(student);
+
+        mockMvc.perform(post("/students")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.name", is("name must not be empty")));
+    }
+
+    @Test
+    public void validateMinimumAgeInRequest() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        StudentCreationDTO student = new StudentCreationDTO("Andrew", 16);
+        String requestBody = mapper.writeValueAsString(student);
+
+        mockMvc.perform(post("/students")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.age", is("age cannot be less than 17 years old")));
+    }
+
+    @Test
+    public void validateNullAge() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        StudentCreationDTO student = new StudentCreationDTO("Jason", null);
+        String requestBody = mapper.writeValueAsString(student);
+
+        mockMvc.perform(post("/students")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.age", is("age must not be null")));
     }
 
     @Test

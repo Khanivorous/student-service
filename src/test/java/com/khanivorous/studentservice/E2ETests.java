@@ -3,7 +3,6 @@ package com.khanivorous.studentservice;
 import com.khanivorous.studentservice.student.model.StudentCreationDTO;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +33,9 @@ public class E2ETests {
                 .post()
                 .then()
                 .assertThat()
-                .body(is("{\"id\":1,\"name\":\"Andy\",\"age\":22}"))
+                .body("name", is("Andy"))
+                .body("id", is(1))
+                .body("age", is(22))
                 .statusCode(is(201));
 
         given().get("/1")
@@ -55,5 +56,47 @@ public class E2ETests {
                 .assertThat()
                 .body("isEmpty()", is(true))
                 .statusCode(is(200));
+    }
+
+    @Test
+    public void validateEmptyNameInRequest() {
+
+        StudentCreationDTO studentDTO = new StudentCreationDTO("", 17);
+
+        given().body(studentDTO)
+                .contentType(ContentType.JSON)
+                .post()
+                .then()
+                .assertThat()
+                .body("name", is("name must not be empty"))
+                .statusCode(is(400));
+    }
+
+    @Test
+    public void validateMinimumAgeInRequest() {
+
+        StudentCreationDTO studentDTO = new StudentCreationDTO("Andrew", 16);
+
+        given().body(studentDTO)
+                .contentType(ContentType.JSON)
+                .post()
+                .then()
+                .assertThat()
+                .body("age", is("age cannot be less than 17 years old"))
+                .statusCode(is(400));
+    }
+
+    @Test
+    public void validateNullAge() {
+
+        StudentCreationDTO studentDTO = new StudentCreationDTO("Jason", null);
+
+        given().body(studentDTO)
+                .contentType(ContentType.JSON)
+                .post()
+                .then()
+                .assertThat()
+                .body("age", is("age must not be null"))
+                .statusCode(is(400));
     }
 }
